@@ -45,23 +45,79 @@ public class Automate {
      * @throws FileNotFoundException
      */
     private void chargerFichier(String fileName) throws IOException {
-        BufferedReader reader= new BufferedReader(new FileReader(fileName));
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
         String line;
         Map<String, Etat> mapEtats = new HashMap<>();
 
-        //TODO finir la lecture du fichier
+        // Lecture des états
+        line = reader.readLine();
+        if (line != null && line.startsWith("Etats:")) {
+            String[] etatsStr = line.substring(7).trim().split(",");
+            for (String etatStr : etatsStr) {
+                Etat etat = new Etat(etatStr.trim(), false);
+                etats.add(etat);
+                mapEtats.put(etatStr.trim(), etat);
+            }
+        }
 
-        //lecture des etats
+        // Lecture de l'état initial
+        line = reader.readLine();
+        if (line != null && line.startsWith("Initial:")) {
+            String initialStr = line.substring(9).trim();
+            etatInitial = mapEtats.get(initialStr);
+            etatCourant = etatInitial; // Au départ, l'état courant est l'état initial
+        }
 
-        //lecture de l'état initial
+        // Lecture des états finaux
+        line = reader.readLine();
+        if (line != null && line.startsWith("Finaux:")) {
+            String[] finauxStr = line.substring(8).trim().split(",");
+            for (String finalStr : finauxStr) {
+                Etat etatFinal = mapEtats.get(finalStr.trim());
+                if (etatFinal != null) {
+                    etatFinal.setFinal(true);
+                    etatsFinaux.add(etatFinal);
+                }
+            }
+        }
 
-        //lecture des états finaux
+        // Lecture de l'alphabet
+        line = reader.readLine();
+        if (line != null && line.startsWith("Alphabet:")) {
+            String alphabetStr = line.substring(9).trim();
+            for (char c : alphabetStr.toCharArray()) {
+                if (c != ',' && c != ' ') {
+                    alphabet.add(c);
+                }
+            }
+        }
 
-        //lecture de l'alphabet
+        // Lecture des transitions
+        while ((line = reader.readLine()) != null) {
+            if (line.startsWith("Transition:")) {
+                String[] parts = line.substring(12).trim().split("->");
+                if (parts.length == 2) {
+                    String[] left = parts[0].trim().split(",");
+                    if (left.length == 2) {
+                        String fromState = left[0].trim();
+                        char symbol = left[1].trim().charAt(0);
+                        String toState = parts[1].trim();
 
-        //lecture des transitions
+                        Etat from = mapEtats.get(fromState);
+                        Etat to = mapEtats.get(toState);
 
+                        if (from != null && to != null) {
+                            Transition t = from.ajouterTransition(to, symbol);
+                            transitions.add(t);
+                            alphabet.add(symbol);
+                        }
+                    }
+                }
+            }
+        }
+        reader.close();
     }
+
 
     /**
      * Ajoute un état à l'automate
