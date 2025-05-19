@@ -9,7 +9,7 @@ aaabbb -> true [séquence valide complexe]
 
 # Tests invalides
 
-b -> false [commence par un symbole invalide]
+cb -> false [commence par un symbole invalide]
 ba -> false [ordre des symboles incorrect]
 aab -> false [nombre de symboles déséquilibré]
 abb -> false [nombre de symboles déséquilibré]

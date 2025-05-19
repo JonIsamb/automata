@@ -1,5 +1,8 @@
 package src;
 
+import com.sun.source.doctree.SystemPropertyTree;
+
+import javax.sound.midi.SysexMessage;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -140,13 +143,14 @@ public class Automate {
             if (etatInitial == null) {
                 // Si l'état initial n'a pas été défini, créer un état spécial
                 etatInitial = new Etat(etatArriveeStr, false);
-                etats.add(etatInitial);
                 mapEtats.put(etatArriveeStr, etatInitial);
                 etatOrigine = etatInitial;
                 etatCourant = etatInitial; // Au départ, l'état courant est l'état initial
             } else {
                 etatOrigine = etatInitial;
             }
+
+            return;
         } else {
             etatOrigine = mapEtats.get(etatOrigineStr);
             // Si c'est la première transition de l'automate et qu'on n'a pas encore d'état initial
@@ -159,6 +163,7 @@ public class Automate {
         // Traiter l'état d'arrivée
         Etat etatArrivee = mapEtats.get(etatArriveeStr);
         if (etatArriveeStr.equals("-")) {
+            etatOrigine.setFinal(true);
             etatsFinaux.add(etatOrigine);
         }
 
