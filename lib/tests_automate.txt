@@ -1,0 +1,20 @@
+# Fichier de tests pour l'automate
+# Format : <séquence> -> <résultat attendu> [<commentaire>]
+
+# Tests valides
+
+ab -> true [séquence valide simple]
+aabb -> true [séquence valide plus longue]
+aaabbb -> true [séquence valide complexe]
+
+# Tests invalides
+
+b -> false [commence par un symbole invalide]
+ba -> false [ordre des symboles incorrect]
+aab -> false [nombre de symboles déséquilibré]
+abb -> false [nombre de symboles déséquilibré]
+aaba -> false [séquence incorrecte]
+x -> false [symbole n'appartenant pas à l'alphabet]
+aaax -> false [symbole invalide en milieu de séquence]
+aabbb -> false [trop de symboles 'b']
+-> false [chaîne vide]
