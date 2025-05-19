@@ -33,7 +33,7 @@ public class Etat {
      */
     public Etat getEtatSuivant(char symbole) {
         for (Transition t : transitions) {
-            if (t.getSymbole() == symbole) {
+            if (t.getSymbole() == symbole || "ε".equals(String.valueOf(t.getSymbole()))) {
                 return t.getEtatFinal();
             }
         }

@@ -9,11 +9,13 @@ public class App {
 
         System.out.println(a.toString());
 
-        Automate automateFacile = new Automate("lib/automate-facile.txt");
+        testerAutomate(a, "lib/tests_automate_autre.txt");
 
-        System.out.println(automateFacile.toString());
-
-        testerAutomate(automateFacile, "lib/tests_automate.txt");
+//        Automate automateFacile = new Automate("lib/automate-facile.txt");
+//
+//        System.out.println(automateFacile.toString());
+//
+//        testerAutomate(automateFacile, "lib/tests_automate.txt");
     }
 
     private static void testerAutomate(Automate a, String testFile) throws Exception {

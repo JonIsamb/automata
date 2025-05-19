@@ -1,0 +1,16 @@
+# Fichier de tests pour l'automate
+# Format : <séquence> -> <résultat attendu> [<commentaire>]
+
+# Tests valides
+
+Q -> true [séquence valide simple]
+JDQ -> true [séquence valide plus longue]
+JDPWGEAQ -> true [séquence valide complexe]
+
+# Tests invalides
+
+ZJDPWGEAQ -> false [commence par un symbole invalide]
+JDPWAEGQ -> false [ordre des symboles incorrect (s'arrête avant d'être en mouvement)]
+JDPWGEA -> false [ne sort pas de l'automate]
+JDPWGEAAQ -> false [s'arrête alors qu'il est déjà à l'arrêt]
+-> false [chaîne vide]
