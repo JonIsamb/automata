@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Automate {
 
@@ -40,7 +42,7 @@ public class Automate {
     }
 
     /**
-     * Charge un automate depuis un fichier
+     * Charge un automate depuis un fichier avec la syntaxe spécifique définie
      * @param fileName Nom du fichier
      * @throws FileNotFoundException
      */
@@ -49,73 +51,154 @@ public class Automate {
         String line;
         Map<String, Etat> mapEtats = new HashMap<>();
 
-        // Lecture des états
-        line = reader.readLine();
-        if (line != null && line.startsWith("Etats:")) {
-            String[] etatsStr = line.substring(7).trim().split(",");
-            for (String etatStr : etatsStr) {
-                Etat etat = new Etat(etatStr.trim(), false);
-                etats.add(etat);
-                mapEtats.put(etatStr.trim(), etat);
-            }
-        }
+        // Phase 1: Collecter tous les noms d'états
+        boolean etatsSection = true;
+        List<String> nomEtats = new ArrayList<>();
 
-        // Lecture de l'état initial
-        line = reader.readLine();
-        if (line != null && line.startsWith("Initial:")) {
-            String initialStr = line.substring(9).trim();
-            etatInitial = mapEtats.get(initialStr);
-            etatCourant = etatInitial; // Au départ, l'état courant est l'état initial
-        }
-
-        // Lecture des états finaux
-        line = reader.readLine();
-        if (line != null && line.startsWith("Finaux:")) {
-            String[] finauxStr = line.substring(8).trim().split(",");
-            for (String finalStr : finauxStr) {
-                Etat etatFinal = mapEtats.get(finalStr.trim());
-                if (etatFinal != null) {
-                    etatFinal.setFinal(true);
-                    etatsFinaux.add(etatFinal);
-                }
-            }
-        }
-
-        // Lecture de l'alphabet
-        line = reader.readLine();
-        if (line != null && line.startsWith("Alphabet:")) {
-            String alphabetStr = line.substring(9).trim();
-            for (char c : alphabetStr.toCharArray()) {
-                if (c != ',' && c != ' ') {
-                    alphabet.add(c);
-                }
-            }
-        }
-
-        // Lecture des transitions
         while ((line = reader.readLine()) != null) {
-            if (line.startsWith("Transition:")) {
-                String[] parts = line.substring(12).trim().split("->");
-                if (parts.length == 2) {
-                    String[] left = parts[0].trim().split(",");
-                    if (left.length == 2) {
-                        String fromState = left[0].trim();
-                        char symbol = left[1].trim().charAt(0);
-                        String toState = parts[1].trim();
+            line = line.trim();
 
-                        Etat from = mapEtats.get(fromState);
-                        Etat to = mapEtats.get(toState);
+            // Ignorer les lignes vides
+            if (line.isEmpty()) {
+                continue;
+            }
 
-                        if (from != null && to != null) {
-                            Transition t = from.ajouterTransition(to, symbol);
-                            transitions.add(t);
-                            alphabet.add(symbol);
-                        }
-                    }
-                }
+            // Détecter la transition entre la section des états et la section des transitions
+            if (line.contains("->")) {
+                etatsSection = false;
+                break; // Sortir pour traiter cette ligne dans la phase 2
+            }
+
+            if (etatsSection) {
+                // C'est un nom d'état
+                nomEtats.add(line);
             }
         }
+
+        // Créer les objets Etat
+        for (String nomEtat : nomEtats) {
+            Etat etat = new Etat(nomEtat, false); // Tous les états sont non finaux par défaut
+            etats.add(etat);
+            mapEtats.put(nomEtat, etat);
+        }
+
+        // Si on a un état initial défini par "-"
+        etatInitial = null;
+
+        // Phase 2: Traiter les transitions
+        // Traiter la première transition qui a été lue plus tôt
+        if (line != null && line.contains("->")) {
+            traiterTransition(line, mapEtats);
+        }
+
+        // Traiter le reste des transitions
+        while ((line = reader.readLine()) != null) {
+            line = line.trim();
+            if (line.isEmpty()) {
+                continue;
+            }
+            if (line.contains("->")) {
+                traiterTransition(line, mapEtats);
+            }
+        }
+
         reader.close();
+    }
+
+    /**
+     * Traite une ligne de transition au format défini
+     * @param line Ligne de transition
+     * @param mapEtats Mapping des noms d'états vers les objets Etat
+     */
+    private void traiterTransition(String line, Map<String, Etat> mapEtats) {
+        // Format: <etat_origine> -> <etat_arrivee> : <condition>; <symbole>; <operations_sur_pile>
+        String[] parts = line.split("->");
+        if (parts.length != 2) return;
+
+        String etatOrigineStr = parts[0].trim();
+
+        // Extraire la partie après la flèche
+        String secondPart = parts[1].trim();
+        String[] subParts = secondPart.split(":");
+        if (subParts.length != 2) return;
+
+        String etatArriveeStr = subParts[0].trim();
+        String resteParts = subParts[1].trim();
+
+        // Diviser le reste en condition, symbole et opérations sur pile
+        String[] operationParts = resteParts.split(";");
+        if (operationParts.length < 2) return;
+
+        String conditionStr = operationParts[0].trim();
+        String symboleStr = operationParts[1].trim();
+        String operationsPileStr = operationParts.length > 2 ? operationParts[2].trim() : "";
+
+        // Traiter l'état d'origine
+        Etat etatOrigine;
+        if (etatOrigineStr.equals("-")) {
+            // C'est l'état initial
+            if (etatInitial == null) {
+                // Si l'état initial n'a pas été défini, créer un état spécial
+                etatInitial = new Etat(etatArriveeStr, false);
+                etats.add(etatInitial);
+                mapEtats.put(etatArriveeStr, etatInitial);
+                etatOrigine = etatInitial;
+                etatCourant = etatInitial; // Au départ, l'état courant est l'état initial
+            } else {
+                etatOrigine = etatInitial;
+            }
+        } else {
+            etatOrigine = mapEtats.get(etatOrigineStr);
+            // Si c'est la première transition de l'automate et qu'on n'a pas encore d'état initial
+            if (etatInitial == null && etatOrigine != null) {
+                etatInitial = etatOrigine;
+                etatCourant = etatInitial;
+            }
+        }
+
+        // Traiter l'état d'arrivée
+        Etat etatArrivee = mapEtats.get(etatArriveeStr);
+        if (etatArriveeStr.equals("-")) {
+            etatsFinaux.add(etatOrigine);
+        }
+
+        // Vérifier si les états existent
+        if (etatOrigine == null || etatArrivee == null) {
+            System.out.println("État non trouvé: " + etatOrigineStr + " ou " + etatArriveeStr);
+            return;
+        }
+
+        // Traiter le symbole
+        char symbole;
+        if (symboleStr.length() == 1) {
+            symbole = symboleStr.charAt(0);
+        } else {
+            // Gérer les symboles spéciaux comme "ε" (epsilon)
+            if (symboleStr.equals("ε")) {
+                symbole = 'ε';
+            } else if (symboleStr.equals("⊥")) {
+                symbole = '⊥';
+            } else {
+                // Pour les autres symboles multi-caractères comme "P5", "P10", etc.
+                symbole = symboleStr.charAt(0); // Prendre le premier caractère par défaut
+            }
+        }
+
+        // Ajouter la transition
+        Transition transition = new Transition(etatOrigine, etatArrivee, symbole);
+
+        // Ajouter des informations supplémentaires à la transition si nécessaire
+        if (!conditionStr.equals("-")) {
+            transition.setCondition(conditionStr);
+        }
+
+        if (!operationsPileStr.isEmpty()) {
+            transition.setOperationPile(operationsPileStr);
+        }
+
+        this.transitions.add(transition);
+        this.alphabet.add(symbole);
+        etatOrigine.ajouterTransition(etatArrivee, symbole);
     }
 
 

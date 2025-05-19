@@ -1,0 +1,38 @@
+stop
+move
+heads_north
+heads_west
+heads_south
+heads_east
+jump
+pick_up
+drop
+quit
+- -> stop : -; ε; ⊥/⊥ZN
+stop -> quit : -; Q; ZD/ZD
+move -> quit : -; Q; ZD/ZD
+stop -> jump : -; J; ZD/ZD
+jump -> stop : -; ε; ZD/ZDP10 [on star], ZD/ZD
+stop -> pick_up : [object nearby and nbO < 10]; P; ZD/ZDO
+pick_up -> stop : -; ε; ZD/ZD
+stop -> drop : [nbO > 0]; D; ZO/Z
+drop -> stop : -; ε; ZD/ZDP5 [in box], ZD/ZD
+stop -> move : -; G; ZD/ZD
+move -> stop : -; A; ZD/ZD
+stop -> heads_north : -; N; ZX/ZNA
+stop -> heads_west : -; W; ZX/ZWA
+stop -> heads_south : -; S; ZX/ZSA
+stop -> heads_east : -; E; ZX/ZEA
+heads_north -> stop : -; ε; ZNA/ZN
+heads_west -> stop : -; ε; ZWA/ZW
+heads_south -> stop : -; ε; ZSA/ZS
+heads_east -> stop : -; ε; ZEA/ZE
+move -> heads_north : -; N; ZX/ZNM
+move -> heads_west : -; W; ZX/ZWM
+move -> heads_south : -; S; ZX/ZSM
+move -> heads_east : -; E; ZX/ZEM
+heads_north -> move : -; ε; ZNM/ZN
+heads_west -> move : -; ε; ZWM/ZW
+heads_south -> move : -; ε; ZSM/ZS
+heads_east -> move : -; ε; ZEM/ZE
+quit -> - : ; ;

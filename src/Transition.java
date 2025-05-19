@@ -7,6 +7,10 @@ public class Transition {
 
     public char symbole;
 
+    public String condition;
+
+    public String operationsPile;
+
     public Transition(Etat etatOrigine, Etat etatFinal, char symbole) {
         this.etatOrigine = etatOrigine;
         this.etatFinal = etatFinal;
@@ -37,12 +41,30 @@ public class Transition {
         this.symbole = symbole;
     }
 
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
+
+    public String getOperationPile() {
+        return operationsPile;
+    }
+
+    public void setOperationPile(String operationsPile) {
+        this.operationsPile = operationsPile;
+    }
+
     @Override
     public String toString() {
         return "src.Transition{" +
                 "etatOrigine=" + etatOrigine.getName() +
                 ", etatFinal=" + etatFinal.getName() +
                 ", symbole=" + symbole +
+                ", condition=" + condition +
+                ", operationsPile=" + operationsPile +
                 '}';
     }
 
