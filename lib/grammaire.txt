@@ -1,0 +1,33 @@
+<grammaire> 		::= <etats> L <transitions>
+
+<etats> 		    ::= <etat> L { <etat> L }
+
+<etat>			    ::= <nom_etat>
+
+<nom_etat>		    ::= <lettre> { <lettre> | "_" }
+
+<lettre>        	::= "A" … "Z" | "a" … "z"
+
+<transitions>		::= <transition> L { <transition> L }
+
+<transition>		::= <etat_origine> -> <etat_arrivee> : <condition>; <symbole>; <operations_sur_pile>
+
+<etat_origine>		::= "-" | <nom_etat>
+
+<etat_arrivee>		::= <nom_etat>
+
+<condition>		    ::= "-" | "[" <liste_predicats> "]"
+
+<liste_predicats>   ::= <predicat> { ( "and" | "or" ) <predicat> }
+
+<predicat>          ::= <variable> [ <operateur> <nombre> ] | <variable>
+
+<operateur>     	::= "<" | ">" | "=" | "<=" | ">="
+
+<variable>      	::= <lettre> { <lettre> | <chiffre> | "_" }
+
+<nombre>        	::= <chiffre> { <chiffre> }
+
+<chiffre>		    ::= "0" … "9"
+
+<symbole>       	::= "⊥" | "ε" | "N" | "E" | "W" | "S" | "A" | "M" | "P5" | "P10" | "O"
