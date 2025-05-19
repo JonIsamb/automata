@@ -6,16 +6,15 @@ import java.io.FileReader;
 public class App {
     public static void main(String[] args) throws Exception {
         Automate a = new Automate("lib/automate.txt");
-
         System.out.println(a.toString());
 
         testerAutomate(a, "lib/tests_automate_autre.txt");
 
-//        Automate automateFacile = new Automate("lib/automate-facile.txt");
-//
-//        System.out.println(automateFacile.toString());
-//
-//        testerAutomate(automateFacile, "lib/tests_automate.txt");
+        Automate automateFacile = new Automate("lib/automate-facile.txt");
+
+        System.out.println(automateFacile.toString());
+
+        testerAutomate(automateFacile, "lib/tests_automate.txt");
     }
 
     private static void testerAutomate(Automate a, String testFile) throws Exception {
