@@ -1,71 +1,116 @@
 package src;
 
 public class Transition {
-    public Etat etatOrigine;
-
-    public Etat etatFinal;
-
-    public char symbole;
-
+    public State originState;
+    public State finalState;
+    public char symbol;
     public String condition;
+    public String stackOperations;
 
-    public String operationsPile;
-
-    public Transition(Etat etatOrigine, Etat etatFinal, char symbole) {
-        this.etatOrigine = etatOrigine;
-        this.etatFinal = etatFinal;
-        this.symbole = symbole;
+    /**
+     * Constructor for creating a basic transition
+     * @param originState The starting state
+     * @param finalState The destination state
+     * @param symbol The triggering symbol
+     */
+    public Transition(State originState, State finalState, char symbol) {
+        this.originState = originState;
+        this.finalState = finalState;
+        this.symbol = symbol;
     }
 
-    public Etat getEtatOrigine() {
-        return etatOrigine;
+    /**
+     * Get the origin state of the transition
+     * @return The origin state
+     */
+    public State getOriginState() {
+        return originState;
     }
 
-    public void setEtatOrigine(Etat etatOrigine) {
-        this.etatOrigine = etatOrigine;
+    /**
+     * Set the origin state of the transition
+     * @param originState The new origin state
+     */
+    public void setOriginState(State originState) {
+        this.originState = originState;
     }
 
-    public Etat getEtatFinal() {
-        return etatFinal;
+    /**
+     * Get the final state of the transition
+     * @return The final state
+     */
+    public State getFinalState() {
+        return finalState;
     }
 
-    public void setEtatFinal(Etat etatFinal) {
-        this.etatFinal = etatFinal;
+    /**
+     * Set the final state of the transition
+     * @param finalState The new final state
+     */
+    public void setFinalState(State finalState) {
+        this.finalState = finalState;
     }
 
-    public char getSymbole() {
-        return symbole;
+    /**
+     * Get the symbol that triggers this transition
+     * @return The transition symbol
+     */
+    public char getSymbol() {
+        return symbol;
     }
 
-    public void setSymbole(char symbole) {
-        this.symbole = symbole;
+    /**
+     * Set the symbol that triggers this transition
+     * @param symbol The new transition symbol
+     */
+    public void setSymbol(char symbol) {
+        this.symbol = symbol;
     }
 
+    /**
+     * Get the condition for this transition
+     * @return The condition string
+     */
     public String getCondition() {
         return condition;
     }
 
+    /**
+     * Set the condition for this transition
+     * @param condition The new condition string
+     */
     public void setCondition(String condition) {
         this.condition = condition;
     }
 
-    public String getOperationPile() {
-        return operationsPile;
+    /**
+     * Get the stack operations for this transition
+     * @return The stack operations string
+     */
+    public String getStackOperation() {
+        return stackOperations;
     }
 
-    public void setOperationPile(String operationsPile) {
-        this.operationsPile = operationsPile;
+    /**
+     * Set the stack operations for this transition
+     * @param stackOperations The new stack operations string
+     */
+    public void setStackOperation(String stackOperations) {
+        this.stackOperations = stackOperations;
     }
 
+    /**
+     * Generate a string representation of this transition
+     * @return A string describing the transition's properties
+     */
     @Override
     public String toString() {
         return "src.Transition{" +
-                "etatOrigine=" + etatOrigine.getName() +
-                ", etatFinal=" + etatFinal.getName() +
-                ", symbole=" + symbole +
+                "originState=" + originState.getName() +
+                ", finalState=" + finalState.getName() +
+                ", symbol=" + symbol +
                 ", condition=" + condition +
-                ", operationsPile=" + operationsPile +
+                ", stackOperations=" + stackOperations +
                 '}';
     }
-
 }
