@@ -35,4 +35,4 @@ heads_north -> move : -; ε; ZNM/ZN
 heads_west -> move : -; ε; ZWM/ZW
 heads_south -> move : -; ε; ZSM/ZS
 heads_east -> move : -; ε; ZEM/ZE
-quit -> - : ; ;
+quit -> - : -; -; -
