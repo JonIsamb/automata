@@ -1,13 +1,8 @@
-;; NetLogo code automatically generated
-;; Automaton: 10 states
-
 to stop
-  ;; to be completed
   print "stop"
 end
 
 to move
-  ;; to be completed
   print "move"
   if (button-quit = true) [
     set next-activity [ -> quit ]
@@ -30,42 +25,68 @@ to move
 end
 
 to heads_north
-  ;; to be completed
   print "heads_north"
+  ; Automatic transitions based on stack top
+  if (stack-top = "A") [
+      set next-activity [ -> stop ]
+  ] [
+    if (stack-top = "M") [
+        set next-activity [ -> move ]
+  ]  ]
 end
 
 to heads_west
-  ;; to be completed
   print "heads_west"
+  ; Automatic transitions based on stack top
+  if (stack-top = "A") [
+      set next-activity [ -> stop ]
+  ] [
+    if (stack-top = "M") [
+        set next-activity [ -> move ]
+  ]  ]
 end
 
 to heads_south
-  ;; to be completed
   print "heads_south"
+  ; Automatic transitions based on stack top
+  if (stack-top = "A") [
+      set next-activity [ -> stop ]
+  ] [
+    if (stack-top = "M") [
+        set next-activity [ -> move ]
+  ]  ]
 end
 
 to heads_east
-  ;; to be completed
   print "heads_east"
+  ; Automatic transitions based on stack top
+  if (stack-top = "A") [
+      set next-activity [ -> stop ]
+  ] [
+    if (stack-top = "M") [
+        set next-activity [ -> move ]
+  ]  ]
 end
 
 to jump
-  ;; to be completed
   print "jump"
+  ; Automatic transition
+  set next-activity [ -> stop ]
 end
 
 to pick_up
-  ;; to be completed
   print "pick_up"
+  ; Automatic transition
+  set next-activity [ -> stop ]
 end
 
 to drop
-  ;; to be completed
   print "drop"
+  ; Automatic transition
+  set next-activity [ -> stop ]
 end
 
 to quit
-  ;; to be completed
   print "quit"
 end
 

@@ -1,10 +1,8 @@
 to stop
-  ;; to be completed
   print "stop"
 end
 
 to move
-  ;; to be completed
   print "move"
   if (button-quit = true) [
     set next-activity [ -> quit ]
@@ -27,42 +25,61 @@ to move
 end
 
 to heads_north
-  ;; to be completed
   print "heads_north"
+  if (stack-top = "A") [
+      set next-activity [ -> stop ]
+  ] [
+    if (stack-top = "M") [
+        set next-activity [ -> move ]
+  ]  ]
 end
 
 to heads_west
-  ;; to be completed
   print "heads_west"
+  if (stack-top = "A") [
+      set next-activity [ -> stop ]
+  ] [
+    if (stack-top = "M") [
+        set next-activity [ -> move ]
+  ]  ]
 end
 
 to heads_south
-  ;; to be completed
   print "heads_south"
+  if (stack-top = "A") [
+      set next-activity [ -> stop ]
+  ] [
+    if (stack-top = "M") [
+        set next-activity [ -> move ]
+  ]  ]
 end
 
 to heads_east
-  ;; to be completed
   print "heads_east"
+  if (stack-top = "A") [
+      set next-activity [ -> stop ]
+  ] [
+    if (stack-top = "M") [
+        set next-activity [ -> move ]
+  ]  ]
 end
 
 to jump
-  ;; to be completed
   print "jump"
+  set next-activity [ -> stop ]
 end
 
 to pick_up
-  ;; to be completed
   print "pick_up"
+  set next-activity [ -> stop ]
 end
 
 to drop
-  ;; to be completed
   print "drop"
+  set next-activity [ -> stop ]
 end
 
 to quit
-  ;; to be completed
   print "quit"
 end
 

@@ -35,7 +35,6 @@ public class Generation {
      */
     private void generateStateProcedure(State state, Automaton automaton, StringBuilder code) {
         code.append("to ").append(state.name).append("\n");
-        code.append("  ;; to be completed\n");
         code.append("  print \"").append(state.name).append("\"\n");
 
         // Get transitions from this state
@@ -54,18 +53,35 @@ public class Generation {
      * @param code The StringBuilder containing the code being built
      */
     private void generateTransitionConditions(List<Transition> transitions, StringBuilder code) {
-        // Filter out epsilon transitions
+        // Separate epsilon and non-epsilon transitions
         List<Transition> nonEpsilonTransitions = transitions.stream()
                 .filter(t -> t.symbol != 'ε')
-                .collect(Collectors.toList());
+                .toList();
 
-        if (nonEpsilonTransitions.isEmpty()) {
-            return;
+        List<Transition> epsilonTransitions = transitions.stream()
+                .filter(t -> t.symbol == 'ε')
+                .toList();
+
+        // Generate non-epsilon transitions (button-based)
+        if (!nonEpsilonTransitions.isEmpty()) {
+            generateButtonTransitions(nonEpsilonTransitions, code);
         }
 
-        // Generate simple if-else chain
-        for (int i = 0; i < nonEpsilonTransitions.size(); i++) {
-            Transition t = nonEpsilonTransitions.get(i);
+        // Generate epsilon transitions (automatic)
+        if (!epsilonTransitions.isEmpty()) {
+            generateAutomaticTransitions(epsilonTransitions, code);
+        }
+    }
+
+    /**
+     * Generates button-based transitions
+     * @param transitions List of non-epsilon transitions
+     * @param code The StringBuilder containing the code being built
+     */
+    private void generateButtonTransitions(List<Transition> transitions, StringBuilder code) {
+        // Generate simple if-else chain for button presses
+        for (int i = 0; i < transitions.size(); i++) {
+            Transition t = transitions.get(i);
             String keyboardCondition = generateKeyboardCondition(t.symbol);
 
             String indent = "  ";
@@ -90,10 +106,81 @@ public class Generation {
         }
 
         // Close all remaining brackets
-        for (int i = nonEpsilonTransitions.size() - 1; i > 0; i--) {
+        for (int i = transitions.size() - 1; i > 0; i--) {
             code.append(" ]");
         }
         code.append("\n");
+    }
+
+    /**
+     * Generates automatic transitions (epsilon transitions)
+     * @param transitions List of epsilon transitions
+     * @param code The StringBuilder containing the code being built
+     */
+    private void generateAutomaticTransitions(List<Transition> transitions, StringBuilder code) {
+        if (transitions.size() == 1) {
+            // Single automatic transition
+            Transition t = transitions.get(0);
+            code.append("  set next-activity [ -> ").append(t.finalState.name).append(" ]\n");
+        } else if (transitions.size() > 1) {
+            // Multiple automatic transitions based on stack conditions
+            for (int i = 0; i < transitions.size(); i++) {
+                Transition t = transitions.get(i);
+                String stackCondition = extractStackCondition(t.stackOperations);
+
+                if (i == 0) {
+                    code.append("  if (").append(stackCondition).append(") [\n");
+                } else {
+                    code.append("  ] [\n");
+                    code.append("    if (").append(stackCondition).append(") [\n");
+                }
+
+                String indent = "    ";
+                for (int j = 0; j < i; j++) {
+                    indent += "  ";
+                }
+
+                code.append(indent).append("  set next-activity [ -> ").append(t.finalState.name).append(" ]\n");
+            }
+
+            // Close all brackets
+            for (int i = 0; i < transitions.size(); i++) {
+                code.append("  ]");
+            }
+            code.append("\n");
+        }
+    }
+
+    /**
+     * Extracts stack condition from stack operations for epsilon transitions
+     * @param stackOperations The stack operations string (e.g., "ZNA/ZN")
+     * @return The NetLogo condition to check stack top
+     */
+    private String extractStackCondition(String stackOperations) {
+        if (stackOperations == null || stackOperations.isEmpty()) {
+            return "true";
+        }
+
+        // Parse stack operations like "ZNA/ZN" to extract the condition
+        String[] parts = stackOperations.split("/");
+        if (parts.length >= 1) {
+            String input = parts[0].trim();
+            // Extract the last character which represents the stack top condition
+            if (input.length() >= 3) {
+                char stackTop = input.charAt(input.length() - 1);
+                switch (stackTop) {
+                    case 'A': return "stack-top = \"A\"";
+                    case 'M': return "stack-top = \"M\"";
+                    case 'N': return "stack-top = \"N\"";
+                    case 'S': return "stack-top = \"S\"";
+                    case 'E': return "stack-top = \"E\"";
+                    case 'W': return "stack-top = \"W\"";
+                    default: return "true";
+                }
+            }
+        }
+
+        return "true";
     }
 
     /**
