@@ -1,196 +1,145 @@
 package src;
 
+import src.Automaton;
+import src.State;
+import src.Transition;
+
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Generation {
 
     /**
-     * Génère le code NetLogo à partir d'un automate et l'écrit dans un fichier "automate.nls"
-     * @param automate L'instance d'automate à convertir en NetLogo
+     * Generates NetLogo code from an automaton and writes it to "automate.nls" file
+     * @param automaton The automaton instance to convert to NetLogo
      */
-    public void genererNetLogo(Automaton automate) {
+    public void generateNetLogo(Automaton automaton, String fileName) {
         StringBuilder netLogoCode = new StringBuilder();
 
-        // En-tête du fichier NetLogo
-        netLogoCode.append(";; Code NetLogo généré automatiquement\n");
-        netLogoCode.append(";; Automate: ").append(automate.getStates().size()).append(" états\n\n");
-
-        // Génération des procédures pour chaque état
-        for (State state : automate.getStates()) {
-            genererProcedureEtat(state, netLogoCode);
+        // Generate procedures for each state
+        for (State state : automaton.getStates()) {
+            generateStateProcedure(state, automaton, netLogoCode);
         }
 
-        // Écriture dans le fichier
-        ecrireFichier("automate.nls", netLogoCode.toString());
+        // Write to file
+        writeFile(fileName, netLogoCode.toString());
     }
 
     /**
-     * Génère la procédure NetLogo pour un état donné
-     * @param state L'état pour lequel générer la procédure
-     * @param code Le StringBuilder contenant le code à construire
+     * Generates the NetLogo procedure for a given state
+     * @param state The state for which to generate the procedure
+     * @param automaton The full automaton to get transitions
+     * @param code The StringBuilder containing the code being built
      */
-    private void genererProcedureEtat(State state, StringBuilder code) {
+    private void generateStateProcedure(State state, Automaton automaton, StringBuilder code) {
         code.append("to ").append(state.name).append("\n");
         code.append("  ;; to be completed\n");
         code.append("  print \"").append(state.name).append("\"\n");
 
-        // Récupération des transitions depuis cet état
-        List<Transition> transitionsEtat = getTransitionsFromState(state);
+        // Get transitions from this state
+        List<Transition> stateTransitions = getTransitionsFromState(state, automaton);
 
-        if (transitionsEtat.isEmpty()) {
-            code.append("end\n\n");
-            return;
+        if (!stateTransitions.isEmpty()) {
+            generateTransitionConditions(stateTransitions, code);
         }
-
-        // Génération des conditions et transitions
-        genererConditionsTransitions(transitionsEtat, code);
 
         code.append("end\n\n");
     }
 
     /**
-     * Génère les conditions et transitions pour un état
-     * @param transitions Liste des transitions depuis l'état
-     * @param code Le StringBuilder contenant le code à construire
+     * Generates conditions and transitions for a state
+     * @param transitions List of transitions from the state
+     * @param code The StringBuilder containing the code being built
      */
-    private void genererConditionsTransitions(List<Transition> transitions, StringBuilder code) {
-        // Grouper les transitions par symbole pour gérer les conditions multiples
-        Map<Character, List<Transition>> transitionsBySymbol = new HashMap<>();
+    private void generateTransitionConditions(List<Transition> transitions, StringBuilder code) {
+        // Filter out epsilon transitions
+        List<Transition> nonEpsilonTransitions = transitions.stream()
+                .filter(t -> t.symbol != 'ε')
+                .collect(Collectors.toList());
 
-        for (Transition t : transitions) {
-            transitionsBySymbol.computeIfAbsent(t.symbol, k -> new ArrayList<>()).add(t);
+        if (nonEpsilonTransitions.isEmpty()) {
+            return;
         }
 
-        boolean premierSymbole = true;
+        // Generate simple if-else chain
+        for (int i = 0; i < nonEpsilonTransitions.size(); i++) {
+            Transition t = nonEpsilonTransitions.get(i);
+            String keyboardCondition = generateKeyboardCondition(t.symbol);
 
-        for (Map.Entry<Character, List<Transition>> entry : transitionsBySymbol.entrySet()) {
-            char symbole = entry.getKey();
-            List<Transition> transitionsSymbole = entry.getValue();
-
-            // Ignorer les transitions epsilon (ε) pour la génération des conditions
-            if (symbole == 'ε') {
-                continue;
+            String indent = "  ";
+            for (int j = 0; j < i; j++) {
+                indent += "  ";
             }
 
-            String conditionClavier = genererConditionClavier(symbole);
-
-            if (premierSymbole) {
-                code.append("  if (").append(conditionClavier);
-                premierSymbole = false;
+            if (i == 0) {
+                code.append("  if (").append(keyboardCondition);
             } else {
-                code.append("  ] [\n");
-                code.append("    if (").append(conditionClavier);
+                code.append(" [\n").append(indent).append("if (").append(keyboardCondition);
             }
 
-            // Gérer les conditions spécifiques
-            for (Transition transition : transitionsSymbole) {
-                if (transition.condition != null && !transition.condition.isEmpty()) {
-                    code.append(" and ").append(convertirCondition(transition.condition));
-                }
+            // Add specific condition if present
+            if (t.condition != null && !t.condition.isEmpty()) {
+                code.append(" and ").append(convertCondition(t.condition));
             }
 
             code.append(") [\n");
-
-            // Générer l'action de transition
-            if (transitionsSymbole.size() == 1) {
-                code.append("    set next-activity [ -> ").append(transitionsSymbole.get(0).finalState.name).append(" ]\n");
-            } else {
-                // Gérer les transitions multiples avec priorité
-                genererTransitionsMultiples(transitionsSymbole, code);
-            }
+            code.append(indent).append("  set next-activity [ -> ").append(t.finalState.name).append(" ]\n");
+            code.append(indent).append("]");
         }
 
-        // Fermer toutes les conditions ouvertes
-        for (int i = 0; i < transitionsBySymbol.size() - 1; i++) {
-            code.append("  ] ");
+        // Close all remaining brackets
+        for (int i = nonEpsilonTransitions.size() - 1; i > 0; i--) {
+            code.append(" ]");
         }
-        if (!transitionsBySymbol.isEmpty()) {
-            code.append("]\n");
-        }
+        code.append("\n");
     }
 
     /**
-     * Génère le code pour les transitions multiples (avec priorité)
-     * @param transitions Liste des transitions à gérer
-     * @param code Le StringBuilder contenant le code à construire
+     * Generates the keyboard condition corresponding to the symbol
+     * @param symbol The transition symbol
+     * @return The corresponding NetLogo condition
      */
-    private void genererTransitionsMultiples(List<Transition> transitions, StringBuilder code) {
-        // Trier par priorité (les conditions les plus spécifiques en premier)
-        transitions.sort((t1, t2) -> {
-            if (t1.condition != null && t2.condition == null) return -1;
-            if (t1.condition == null && t2.condition != null) return 1;
-            return 0;
-        });
-
-        boolean premiereTransition = true;
-        for (Transition t : transitions) {
-            if (t.condition != null && !t.condition.isEmpty()) {
-                if (premiereTransition) {
-                    code.append("    ifelse (").append(convertirCondition(t.condition)).append(") [\n");
-                    premiereTransition = false;
-                } else {
-                    code.append("    ] [\n");
-                    code.append("      if (").append(convertirCondition(t.condition)).append(") [\n");
-                }
-                code.append("      set next-activity [ -> ").append(t.finalState.name).append(" ]\n");
-            } else {
-                // Transition par défaut
-                code.append("    ] [\n");
-                code.append("      set next-activity [ -> ").append(t.finalState.name).append(" ]\n");
-            }
-        }
-        code.append("    ]\n");
-    }
-
-    /**
-     * Génère la condition clavier correspondant au symbole
-     * @param symbole Le symbole de transition
-     * @return La condition NetLogo correspondante
-     */
-    private String genererConditionClavier(char symbole) {
-        switch (symbole) {
-            case 'Q': return "bouton-quitter = true";
-            case 'P': return "bouton-ramasser = true";
-            case 'D': return "bouton-deposer = true";
-            case 'G': return "bouton-avancer = true";
-            case 'A': return "bouton-arreter = true";
-            case 'J': return "bouton-sauter = true";
-            case 'N': return "bouton-nord = true";
-            case 'S': return "bouton-sud = true";
-            case 'E': return "bouton-est = true";
-            case 'W': return "bouton-ouest = true";
+    private String generateKeyboardCondition(char symbol) {
+        switch (symbol) {
+            case 'Q': return "button-quit = true";
+            case 'P': return "button-pick = true";
+            case 'D': return "button-drop = true";
+            case 'G': return "button-forward = true";
+            case 'A': return "button-stop = true";
+            case 'J': return "button-jump = true";
+            case 'N': return "button-north = true";
+            case 'S': return "button-south = true";
+            case 'E': return "button-east = true";
+            case 'W': return "button-west = true";
             default: return "false";
         }
     }
 
     /**
-     * Convertit une condition Java en condition NetLogo
-     * @param condition La condition à convertir
-     * @return La condition convertie en NetLogo
+     * Converts a Java condition to NetLogo condition
+     * @param condition The condition to convert
+     * @return The condition converted to NetLogo
      */
-    private String convertirCondition(String condition) {
-        // Convertir les conditions courantes
+    private String convertCondition(String condition) {
+        // Convert current conditions
         condition = condition.replace("[", "").replace("]", "");
-        condition = condition.replace("object nearby", "objet-proche");
-        condition = condition.replace("nbO < 10", "nb-objets < 10");
-        condition = condition.replace("nbO > 0", "nb-objets > 0");
-        condition = condition.replace(" and ", " and ");
+        condition = condition.replace("object nearby", "object-nearby");
+        condition = condition.replace("nbO < 10", "nb-objects < 10");
+        condition = condition.replace("nbO > 0", "nb-objects > 0");
         return condition;
     }
 
     /**
-     * Récupère toutes les transitions depuis un état donné
-     * @param state L'état source
-     * @return Liste des transitions depuis cet état
+     * Gets all transitions from a given state
+     * @param state The source state
+     * @param automaton The automaton containing all transitions
+     * @return List of transitions from this state
      */
-    private List<Transition> getTransitionsFromState(State state) {
+    private List<Transition> getTransitionsFromState(State state, Automaton automaton) {
         List<Transition> result = new ArrayList<>();
-        for (Transition t : state.getTransitions()) {
+        for (Transition t : automaton.getTransitions()) {
             if (t.originState.equals(state)) {
                 result.add(t);
             }
@@ -199,16 +148,16 @@ public class Generation {
     }
 
     /**
-     * Écrit le contenu dans un fichier
-     * @param nomFichier Le nom du fichier à créer
-     * @param contenu Le contenu à écrire
+     * Writes content to a file
+     * @param fileName The name of the file to create
+     * @param content The content to write
      */
-    private void ecrireFichier(String nomFichier, String contenu) {
-        try (FileWriter writer = new FileWriter(nomFichier)) {
-            writer.write(contenu);
-            System.out.println("Fichier " + nomFichier + " généré avec succès !");
+    private void writeFile(String fileName, String content) {
+        try (FileWriter writer = new FileWriter(fileName)) {
+            writer.write(content);
+            System.out.println("File " + fileName + " generated successfully!");
         } catch (IOException e) {
-            System.err.println("Erreur lors de l'écriture du fichier : " + e.getMessage());
+            System.err.println("Error writing file: " + e.getMessage());
         }
     }
 }

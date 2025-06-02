@@ -19,14 +19,16 @@ public class App {
 
         // Generate NetLogo code of this automaton
         Generation generation = new Generation();
-        generation.genererNetLogo(a);
+        generation.generateNetLogo(a, "automate.nls");
 
-//        // Load a simpler automaton and display its details
-//        Automaton simpleAutomaton = new Automaton("lib/automate_facile.txt");
-//        System.out.println(simpleAutomaton.toString());
-//
-//        // Run tests on the simple automaton
-//        testAutomaton(simpleAutomaton, "lib/tests_automate_facile.txt");
+        // Load a simpler automaton and display its details
+        Automaton simpleAutomaton = new Automaton("lib/automate_facile.txt");
+        System.out.println(simpleAutomaton.toString());
+
+        // Run tests on the simple automaton
+        testAutomaton(simpleAutomaton, "lib/tests_automate_facile.txt");
+
+        generation.generateNetLogo(simpleAutomaton, "automate_simple.nls");
     }
 
     /**

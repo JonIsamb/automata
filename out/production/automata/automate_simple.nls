@@ -1,0 +1,19 @@
+;; NetLogo code automatically generated
+;; Automaton: 2 states
+
+to q0
+  ;; to be completed
+  print "q0"
+end
+
+to q1
+  ;; to be completed
+  print "q1"
+  if (false) [
+    set next-activity [ -> q1 ]
+  ] [
+    if (false) [
+      set next-activity [ -> q0 ]
+    ] ]
+end
+
