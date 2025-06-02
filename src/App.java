@@ -11,18 +11,22 @@ public class App {
      */
     public static void main(String[] args) throws Exception {
         // Load the first automaton and display its details
-        Automaton a = new Automaton("lib/automate.txt");
+        Automaton a = new Automaton("lib/automate_tp_personnage.txt");
         System.out.println(a.toString());
 
         // Run tests on the first automaton
-        testAutomaton(a, "lib/tests_automate_autre.txt");
+        testAutomaton(a, "lib/tests_automate_personnage.txt");
 
-        // Load a simpler automaton and display its details
-        Automaton simpleAutomaton = new Automaton("lib/automate-facile.txt");
-        System.out.println(simpleAutomaton.toString());
+        // Generate NetLogo code of this automaton
+        Generation generation = new Generation();
+        generation.genererNetLogo(a);
 
-        // Run tests on the simple automaton
-        testAutomaton(simpleAutomaton, "lib/tests_automate.txt");
+//        // Load a simpler automaton and display its details
+//        Automaton simpleAutomaton = new Automaton("lib/automate_facile.txt");
+//        System.out.println(simpleAutomaton.toString());
+//
+//        // Run tests on the simple automaton
+//        testAutomaton(simpleAutomaton, "lib/tests_automate_facile.txt");
     }
 
     /**

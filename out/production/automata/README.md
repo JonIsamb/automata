@@ -1,18 +1,9 @@
-## Getting Started
+## TP Automate
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+### Grégoire LEGRAND - Jonathan ISAMBOURG
 
-## Folder Structure
+Nous avons choisi de laisser les epsilon-transitions car en les laissant, l'automate résultant n'avait plus de sens, car la pile n'était pas prise en compte.
 
-The workspace contains two folders by default, where:
+Notre projet prend donc en compte ces epsilon-transitions.
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
-
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
-
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+Vous pouvez lancer la classe App pour tester le projet.

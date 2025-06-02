@@ -1,0 +1,78 @@
+;; Code NetLogo généré automatiquement
+;; Automate: 10 états
+
+to stop
+  ;; to be completed
+  print "stop"
+end
+
+to move
+  ;; to be completed
+  print "move"
+  if (bouton-arreter = true) [
+    set next-activity [ -> stop ]
+  ] [
+    if (bouton-quitter = true) [
+    set next-activity [ -> quit ]
+  ] [
+    if (bouton-sud = true) [
+    set next-activity [ -> heads_south ]
+  ] [
+    if (bouton-est = true) [
+    set next-activity [ -> heads_east ]
+  ] [
+    if (bouton-ouest = true) [
+    set next-activity [ -> heads_west ]
+  ] [
+    if (bouton-nord = true) [
+    set next-activity [ -> heads_north ]
+  ]   ]   ]   ]   ] ]
+end
+
+to heads_north
+  ;; to be completed
+  print "heads_north"
+]
+end
+
+to heads_west
+  ;; to be completed
+  print "heads_west"
+]
+end
+
+to heads_south
+  ;; to be completed
+  print "heads_south"
+]
+end
+
+to heads_east
+  ;; to be completed
+  print "heads_east"
+]
+end
+
+to jump
+  ;; to be completed
+  print "jump"
+]
+end
+
+to pick_up
+  ;; to be completed
+  print "pick_up"
+]
+end
+
+to drop
+  ;; to be completed
+  print "drop"
+]
+end
+
+to quit
+  ;; to be completed
+  print "quit"
+end
+
