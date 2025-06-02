@@ -1,0 +1,30 @@
+to q0
+  print "q0"
+end
+
+to q1
+  print "q1"
+  if (false) [
+    set next-activity [ -> q1 ]
+  ] [
+    if (false) [
+      set next-activity [ -> q0 ]
+    ] [
+      if (false) [
+        set next-activity [ -> q2 ]
+      ] ] ]
+end
+
+to q2
+  print "q2"
+  if (false) [
+    set next-activity [ -> q2 ]
+  ] [
+    if (false) [
+      set next-activity [ -> q0 ]
+    ] [
+      if (false) [
+        set next-activity [ -> q1 ]
+      ] ] ]
+end
+

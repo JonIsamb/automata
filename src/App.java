@@ -19,7 +19,7 @@ public class App {
 
         // Generate NetLogo code of this automaton
         Generation generation = new Generation();
-        generation.generateNetLogo(a, "automate.nls");
+        generation.generateNetLogo(a, "automate_tp.nls");
 
         // Load a simpler automaton and display its details
         Automaton simpleAutomaton = new Automaton("lib/automate_facile.txt");
@@ -28,7 +28,17 @@ public class App {
         // Run tests on the simple automaton
         testAutomaton(simpleAutomaton, "lib/tests_automate_facile.txt");
 
+        // Generate NetLogo code of this automaton
         generation.generateNetLogo(simpleAutomaton, "automate_simple.nls");
+
+        // load another automaton and generate net logo code
+        Automaton anotherAutomaton = new Automaton("lib/automate_facile_2.txt");
+
+        // Display the details of the second automaton
+        System.out.println(anotherAutomaton.toString());
+
+        // Generate NetLogo code of this automaton
+        generation.generateNetLogo(anotherAutomaton, "automate_simple_2.nls");
     }
 
     /**
