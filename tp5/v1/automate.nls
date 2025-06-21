@@ -1,0 +1,158 @@
+;; automate.nls - Automaton state definitions (turtle procedures)
+
+to stopping
+  ;; print "stopping"  ;; Comment out print to avoid observer issues
+  ;; State logic is handled in main file's process-stop
+end
+
+to move
+  ;; print "move"  ;; Comment out print to avoid observer issues
+  ;; Check buttons using turtle's own variables
+  if button-quit [
+    set next-state "quit"
+  ]
+  if button-stop [
+    set next-state "stopping"
+  ]
+  if button-north [
+    set next-state "heads_north"
+  ]
+  if button-west [
+    set next-state "heads_west"
+  ]
+  if button-south [
+    set next-state "heads_south"
+  ]
+  if button-east [
+    set next-state "heads_east"
+  ]
+end
+
+to heads_north
+  ;; print "heads_north"
+  let top-symbol get-stack-top  ;; Use the turtle's own stack
+  if (top-symbol = "A") [
+    pop-stack  ;; Remove A from stack
+    set next-state "stopping"
+  ]
+  if (top-symbol = "M") [
+    pop-stack  ;; Remove M from stack
+    set next-state "move"
+  ]
+  set heading 0  ;; Face north
+end
+
+to heads_west
+  ;; print "heads_west"
+  let top-symbol get-stack-top
+  if (top-symbol = "A") [
+    pop-stack
+    set next-state "stopping"
+  ]
+  if (top-symbol = "M") [
+    pop-stack
+    set next-state "move"
+  ]
+  set heading 270  ;; Face west
+end
+
+to heads_south
+  ;; print "heads_south"
+  let top-symbol get-stack-top
+  if (top-symbol = "A") [
+    pop-stack
+    set next-state "stopping"
+  ]
+  if (top-symbol = "M") [
+    pop-stack
+    set next-state "move"
+  ]
+  set heading 180  ;; Face south
+end
+
+to heads_east
+  ;; print "heads_east"
+  let top-symbol get-stack-top
+  if (top-symbol = "A") [
+    pop-stack
+    set next-state "stopping"
+  ]
+  if (top-symbol = "M") [
+    pop-stack
+    set next-state "move"
+  ]
+  set heading 90  ;; Face east
+end
+
+to jumping  ;; Renamed from 'jump' to avoid conflict
+  ;; print "jumping"
+  ;; Jump up 2 units
+  let old-y ycor
+  set ycor ycor + 2
+
+  ;; Check if landing on a star
+  if any? turtles-here with [shape = "star"] [
+    ask one-of turtles-here with [shape = "star"] [
+      die
+    ]
+    set nb-points nb-points + 10
+    push-stack "P10"
+  ]
+
+  set next-state "stop"
+end
+
+to pick_up
+  ;; print "pick_up"
+  ;; Pick up object if available and not carrying too many
+  if object-nearby? and objet-tenu < 10 [
+    ask one-of turtles-here with [shape = "target"] [
+      die
+    ]
+    set objet-tenu objet-tenu + 1
+    set shape "player-with-star"
+  ]
+  set next-state "stop"
+end
+
+to drop
+  ;; print "drop"
+  ;; Drop object if carrying one
+  if objet-tenu > 0 [
+    set objet-tenu objet-tenu - 1
+    pop-stack  ;; Remove O from stack
+
+    ;; Check if in box for points
+    if any? turtles-here with [shape = "box"] [
+      set nb-points nb-points + 5
+      set nb-objects-in-box nb-objects-in-box + 1
+      push-stack "P5"
+    ]
+
+    if objet-tenu = 0 [
+      set shape "player"
+    ]
+  ]
+  set next-state "stop"
+end
+
+to quit
+  ;; print "quit"
+  ;; Quit the simulation
+  stop
+end
+
+;; Utility procedures for automaton operations
+
+to-report is-valid-transition [from-state to-state input-symbol]
+  ;; Check if transition is valid according to automaton rules
+  ;; This could be expanded to include formal transition table validation
+  report true
+end
+
+to log-transition [from-state to-state input-symbol stack-operation]
+  ;; Log state transitions for debugging
+  if length stack-operation > 0 [
+    print (word "Transition: " from-state " -> " to-state " on '" input-symbol "', stack: " stack-operation)
+  ]
+end

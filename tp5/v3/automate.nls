@@ -1,0 +1,85 @@
+to stop
+  print "stop"
+end
+
+to move
+  print "move"
+  if (button-quit = true) [
+    set next-activity [ -> quit ]
+  ] [
+    if (button-stop = true) [
+      set next-activity [ -> stop ]
+    ] [
+      if (button-north = true) [
+        set next-activity [ -> heads_north ]
+      ] [
+        if (button-west = true) [
+          set next-activity [ -> heads_west ]
+        ] [
+          if (button-south = true) [
+            set next-activity [ -> heads_south ]
+          ] [
+            if (button-east = true) [
+              set next-activity [ -> heads_east ]
+            ] ] ] ] ] ]
+end
+
+to heads_north
+  print "heads_north"
+  if (stack-top = "A") [
+      set next-activity [ -> stop ]
+  ] [
+    if (stack-top = "M") [
+        set next-activity [ -> move ]
+  ]  ]
+end
+
+to heads_west
+  print "heads_west"
+  if (stack-top = "A") [
+      set next-activity [ -> stop ]
+  ] [
+    if (stack-top = "M") [
+        set next-activity [ -> move ]
+  ]  ]
+end
+
+to heads_south
+  print "heads_south"
+  if (stack-top = "A") [
+      set next-activity [ -> stop ]
+  ] [
+    if (stack-top = "M") [
+        set next-activity [ -> move ]
+  ]  ]
+end
+
+to heads_east
+  print "heads_east"
+  if (stack-top = "A") [
+      set next-activity [ -> stop ]
+  ] [
+    if (stack-top = "M") [
+        set next-activity [ -> move ]
+  ]  ]
+end
+
+to jump
+  print "jump"
+  set next-activity [ -> stop ]
+end
+
+to pick_up
+  print "pick_up"
+  set next-activity [ -> stop ]
+end
+
+to drop
+  print "drop"
+  set next-activity [ -> stop ]
+end
+
+to quit
+  print "quit"
+end
+

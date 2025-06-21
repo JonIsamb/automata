@@ -1,0 +1,43 @@
+to player-stop
+  ; Empty procedure to satisfy calls
+end
+
+to-report stack-top
+  report last stack
+end
+
+to move
+  ; Move logic handled in process-move
+end
+
+to heads_north
+  ; Direction logic handled in process-heads-north
+end
+
+to heads_west
+  ; Direction logic handled in process-heads-west
+end
+
+to heads_south
+  ; Direction logic handled in process-heads-south
+end
+
+to heads_east
+  ; Direction logic handled in process-heads-east
+end
+
+to player-jump
+  ; Jump logic handled in process-do-jump
+end
+
+to pick_up
+  ; Pickup logic handled in process-pickup
+end
+
+to drop
+  ; Drop logic handled in process-drop
+end
+
+to quit
+  ; Quit logic handled in process-quit
+end
