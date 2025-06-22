@@ -1,0 +1,153 @@
+; Automate.nls - Version améliorée pour TP 5-6
+
+; Procédures pour le comportement du personnage
+
+; Variables globales pour l'état du joueur
+globals [
+  player-x
+  player-y
+  player-direction
+  player-has-object
+  stack
+]
+
+; Initialisation de l'automate
+to init-automate
+  set player-x 0
+  set player-y 0
+  set player-direction 0 ; 0=Nord, 1=Est, 2=Sud, 3=Ouest
+  set player-has-object false
+  set stack []
+end
+
+; Arrêter le joueur
+to player-stop
+  ; Le joueur s'arrête - peut être utilisé pour des pauses
+  wait 0.1
+end
+
+; Retourner le sommet de la pile
+to-report stack-top
+  if length stack > 0 [
+    report last stack
+  ]
+  report 0
+end
+
+; Déplacement du joueur
+to move
+  if player-direction = 0 [ ; Nord
+    set player-y player-y + 1
+  ]
+  if player-direction = 1 [ ; Est
+    set player-x player-x + 1
+  ]
+  if player-direction = 2 [ ; Sud
+    set player-y player-y - 1
+  ]
+  if player-direction = 3 [ ; Ouest
+    set player-x player-x - 1
+  ]
+  ; Mettre à jour la position visuelle
+  ask turtles with [who = 0] [
+    setxy player-x player-y
+  ]
+end
+
+; Orienter vers le nord
+to heads_north
+  set player-direction 0
+  ask turtles with [who = 0] [
+    set heading 90
+  ]
+end
+
+; Orienter vers l'ouest
+to heads_west
+  set player-direction 3
+  ask turtles with [who = 0] [
+    set heading 180
+  ]
+end
+
+; Orienter vers le sud
+to heads_south
+  set player-direction 2
+  ask turtles with [who = 0] [
+    set heading 270
+  ]
+end
+
+; Orienter vers l'est
+to heads_east
+  set player-direction 1
+  ask turtles with [who = 0] [
+    set heading 0
+  ]
+end
+
+; Faire sauter le joueur
+to player-jump
+  ; Animation de saut
+  ask turtles with [who = 0] [
+    set size size * 1.5
+    wait 0.2
+    set size size / 1.5
+  ]
+  ; Le saut permet de franchir un obstacle
+  move
+end
+
+; Ramasser un objet
+to pick_up
+  set player-has-object true
+end
+
+; Déposer un objet
+to drop
+  if player-has-object [
+    set player-has-object false
+    ; Placer l'objet sur le patch actuel
+    ask patch player-x player-y [
+      set pcolor yellow
+    ]
+    ; Restaurer l'apparence normale du joueur
+    ask turtles with [who = 0] [
+      set color red
+    ]
+  ]
+end
+
+; Quitter le jeu
+to quit
+  set game-running false
+  print "Jeu terminé!"
+end
+
+; Procédures pour la gestion de la pile (stack)
+to push-to-stack [value]
+  set stack lput value stack
+end
+
+to-report pop-from-stack
+  if length stack > 0 [
+    let value last stack
+    set stack but-last stack
+    report value
+  ]
+  report 0
+end
+
+; Vérifier les collisions
+to-report check-collision
+  ; Vérifier si le joueur est dans les limites du monde
+  if player-x < min-pxcor or player-x > max-pxcor or
+     player-y < min-pycor or player-y > max-pycor [
+    report true
+  ]
+  ; Vérifier collision avec les murs (patches bleus)
+  if [pcolor] of patch player-x player-y = blue [
+    report true
+  ]
+  report false
+end
