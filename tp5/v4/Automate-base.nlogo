@@ -17,6 +17,11 @@ patches-own [
   has-treasure?
 ]
 
+; Propriétés des tortues
+turtles-own [
+  energy
+]
+
 ; Procédure principale de configuration
 to setup
   clear-all
@@ -30,6 +35,7 @@ to setup
     set shape "person"
     set size 2
     setxy 0 0
+    set energy 100
   ]
   ; Initialiser les variables
   set score 0
@@ -74,22 +80,24 @@ end
 ; Boucle principale
 to go
   if not game-running [ stop ]
-
-  if ticks mod 50 = 0 and count patches with [has-treasure?] < 3 [
-    let available-patches patches with [
-      not is-obstacle? and not has-treasure? and distancexy 0 0 > 2
-    ]
-    if any? available-patches [
-      ask one-of available-patches [
-        set pcolor yellow
-        set has-treasure? true
-      ]
-    ]
-  ]
   tick
 end
 
-; Boutons de mouvement
+; Vérifie et ramasse les trésors
+to check-treasure-pickup
+  if [has-treasure?] of patch player-x player-y and not player-has-object [
+    pick_up
+    ask patch player-x player-y [
+      set has-treasure? false
+      set pcolor green ; Change la couleur du patch après avoir ramassé le trésor
+    ]
+    set objects-found objects-found + 1
+    set score score + 10
+    print (word "Trésor ramassé! Score: " score)
+  ]
+end
+
+; Bouton de mouvement
 to move-button
   if game-running [
     move
@@ -98,43 +106,6 @@ to move-button
   ]
 end
 
-to jump-button
-  if game-running [
-    player-jump
-    set moves-count moves-count + 1
-    check-treasure-pickup
-  ]
-end
-
-to pickup-button
-  if game-running [
-    if [has-treasure?] of patch player-x player-y and not player-has-object [
-      pick_up
-      ask patch player-x player-y [
-        set has-treasure? false
-      ]
-      set objects-found objects-found + 1
-      set score score + 10
-      print (word "Trésor ramassé! Score: " score)
-    ]
-  ]
-end
-
-to drop-button
-  if game-running and player-has-object [
-    drop
-    ask patch player-x player-y [
-      set has-treasure? true
-    ]
-    print "Objet déposé"
-  ]
-end
-
-to check-treasure-pickup
-  if [has-treasure?] of patch player-x player-y and not player-has-object [
-    pickup-button
-  ]
-end
 
 ; Boutons d'orientation
 to north-button
@@ -180,7 +151,6 @@ to quit-button
   quit
 end
 
-
 to show-status
   print "=== STATUS ==="
   print (word "Position: (" player-x ", " player-y ")")
@@ -191,7 +161,6 @@ to show-status
   print (word "Objets trouvés: " objects-found)
   print (word "Temps écoulé: " precision (timer - start-time) 1 " sec")
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 341
@@ -256,9 +225,9 @@ NIL
 
 BUTTON
 5
-116
+117
 85
-149
+150
 avancer
 set bouton-avancer true\nset bouton-stop false
 NIL

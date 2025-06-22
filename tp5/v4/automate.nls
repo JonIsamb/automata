@@ -26,32 +26,34 @@ to player-stop
   wait 0.1
 end
 
-; Retourner le sommet de la pile
-to-report stack-top
-  if length stack > 0 [
-    report last stack
-  ]
-  report 0
-end
-
 ; Déplacement du joueur
 to move
-  if player-direction = 0 [ ; Nord
-    set player-y player-y + 1
+  let new-x player-x
+  let new-y player-y
+  if player-direction = 0 [ set new-y player-y + 1 ] ; Nord
+  if player-direction = 1 [ set new-x player-x + 1 ] ; Est
+  if player-direction = 2 [ set new-y player-y - 1 ] ; Sud
+  if player-direction = 3 [ set new-x player-x - 1 ] ; Ouest
+
+  ; Vérifier les collisions
+  if not check-collision-at new-x new-y [
+    set player-x new-x
+    set player-y new-y
+    ask turtles with [who = 0] [
+      setxy player-x player-y
+    ]
   ]
-  if player-direction = 1 [ ; Est
-    set player-x player-x + 1
+end
+
+; Vérifier les collisions à une position donnée
+to-report check-collision-at [x y]
+  if x < min-pxcor or x > max-pxcor or y < min-pycor or y > max-pycor [
+    report true
   ]
-  if player-direction = 2 [ ; Sud
-    set player-y player-y - 1
+  if [pcolor] of patch x y = blue [
+    report true
   ]
-  if player-direction = 3 [ ; Ouest
-    set player-x player-x - 1
-  ]
-  ; Mettre à jour la position visuelle
-  ask turtles with [who = 0] [
-    setxy player-x player-y
-  ]
+  report false
 end
 
 ; Orienter vers le nord
@@ -122,32 +124,4 @@ end
 to quit
   set game-running false
   print "Jeu terminé!"
-end
-
-; Procédures pour la gestion de la pile (stack)
-to push-to-stack [value]
-  set stack lput value stack
-end
-
-to-report pop-from-stack
-  if length stack > 0 [
-    let value last stack
-    set stack but-last stack
-    report value
-  ]
-  report 0
-end
-
-; Vérifier les collisions
-to-report check-collision
-  ; Vérifier si le joueur est dans les limites du monde
-  if player-x < min-pxcor or player-x > max-pxcor or
-     player-y < min-pycor or player-y > max-pycor [
-    report true
-  ]
-  ; Vérifier collision avec les murs (patches bleus)
-  if [pcolor] of patch player-x player-y = blue [
-    report true
-  ]
-  report false
 end
